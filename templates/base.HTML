@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}CineVault{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #1b1b23; --surface: #141419; --surface2: #141419;
+      --border: rgba(255,255,255,0.07); --accent: #1d61ff;
+      --text: #f0ede6; --muted: #9f9f9f; --red: #e05252;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 300; min-height: 100vh; }
+
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 2rem; border-bottom: 1px solid var(--border);
+      background: rgba(14, 14, 19, 0.97); position: sticky; top: 0; z-index: 10;
+    }
+    .logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 0.08em; color: var(--accent); text-decoration: none; }
+    .logo span { color: var(--text); }
+    .nav-links { display: flex; gap: 1rem; align-items: center; }
+    .nav-links a { color: #fff; text-decoration: none; font-size: 0.82rem; letter-spacing: 0.05em; text-transform: uppercase; transition: color 0.15s; }
+    .nav-links a:hover { color: var(--text); }
+    .btn { display: inline-block; padding: 0.45rem 1.1rem; border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 500; cursor: pointer; text-decoration: none; border: none; transition: opacity 0.15s; }
+    .btn:hover { opacity: 0.85; }
+    .btn-accent { background: var(--accent); color: #0a0a0f; }
+    .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-red { background: var(--red); color: #fff; }
+
+    main { padding: 2rem; max-width: 1200px; margin: 0 auto; }
+
+    .form-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 2rem; max-width: 560px; }
+    .form-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; letter-spacing: 0.05em; margin-bottom: 1.5rem; }
+    .form-group { margin-bottom: 1.1rem; }
+    label { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 0.4rem; }
+    input, textarea, select {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+      padding: 0.6rem 0.8rem; border-radius: 4px; outline: none;
+    }
+    input:focus, textarea:focus, select:focus { border-color: rgba(232,201,109,0.4); }
+    textarea { resize: vertical; min-height: 90px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-actions { display: flex; gap: 0.8rem; margin-top: 1.5rem; }
+    .card-rating { color: #ffd01d; font-weight: 500; }
+
+    footer { border-top: 1px solid var(--border); padding: 1.2rem 2rem; text-align: center; color: var(--muted); font-size: 0.78rem; margin-top: 4rem; }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">Cine<span>Vault</span></a>
+  <div class="nav-links">
+    <a href="/">Movies</a>
+    <a href="/add" class="btn btn-accent">+ Add Movie</a>
+  </div>
+</nav>
+
+<main>{% block content %}{% endblock %}</main>
+
+<footer>© 2026 CineVault</footer>
+</body>
+</html><script>
+(function() {
+  var ws = new WebSocket('ws://' + window.location.host + 
+             '/jb-server-page?reloadMode=RELOAD_ON_SAVE&'+
+             'referrer=' + encodeURIComponent(window.location.pathname));
+  ws.onmessage = function (msg) {
+      if (msg.data === 'reload') {
+          window.location.reload();
+      }
+      if (msg.data.startsWith('update-css ')) {
+          var messageId = msg.data.substring(11);
+          var links = document.getElementsByTagName('link');
+          for (var i = 0; i < links.length; i++) {
+              var link = links[i];
+              if (link.rel !== 'stylesheet') continue;
+              var clonedLink = link.cloneNode(true);
+              var newHref = link.href.replace(/(&|\?)jbUpdateLinksId=\d+/, "$1jbUpdateLinksId=" + messageId);
+              if (newHref !== link.href) {
+                clonedLink.href = newHref;
+              }
+              else {
+                var indexOfQuest = newHref.indexOf('?');
+                if (indexOfQuest >= 0) {
+                  clonedLink.href = newHref.substring(0, indexOfQuest + 1) + 'jbUpdateLinksId=' + messageId + '&' + 
+                                    newHref.substring(indexOfQuest + 1);
+                }
+                else {
+                  clonedLink.href += '?' + 'jbUpdateLinksId=' + messageId;
+                }
+              }
+              link.replaceWith(clonedLink);
+          }
+      }
+  };
+})();
+</script>

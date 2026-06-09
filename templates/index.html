@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}CineVault — Discover Movies{% endblock %}
+
+{% block extra_css %}
+<style>
+  .hero { padding: 3rem 0 2rem; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; }
+  .hero h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 1; letter-spacing: 0.03em; }
+  .hero h1 em { color: var(--accent); font-style: normal; }
+  .hero p { color: var(--muted); margin-top: 0.6rem; font-size: 0.95rem; }
+
+  .toolbar { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-bottom: 1.5rem; }
+  .search-form { display: flex; gap: 0.5rem; flex: 1; min-width: 200px; }
+  .search-form input { max-width: 300px; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+  .chip-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+  .chip { background: var(--surface); border: 1px solid var(--border); color: var(--muted); font-size: 0.78rem; padding: 0.3rem 0.8rem; border-radius: 20px; text-decoration: none; transition: color 0.15s, border-color 0.15s; }
+  .chip:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
+  .chip.active { background: var(--accent); color: #0a0a0f; border-color: transparent; font-weight: 500; }
+
+  .section-header { display: flex; align-items: baseline; gap: 0.8rem; margin-bottom: 1.2rem; }
+  .section-header h2 { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 0.05em; }
+  .count { font-size: 0.78rem; color: var(--muted); }
+
+  .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); gap: 1.1rem; }
+  .movie-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; text-decoration: none; color: inherit; display: block; transition: transform 0.18s, border-color 0.18s; }
+  .movie-card:hover { transform: translateY(-4px); border-color: rgba(232,201,109,0.2); }
+
+  .card-poster { width: 100%; aspect-ratio: 2/3; background: var(--surface2); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; color: var(--muted); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.07em; }
+  .card-poster-icon { font-size: 2.5rem; }
+
+  .card-info { padding: 0.75rem; border-top: 1px solid var(--border); }
+  .card-title { font-family: 'Bebas Neue', sans-serif; font-size: 0.95rem; letter-spacing: 0.04em; line-height: 1.15; margin-bottom: 0.3rem; }
+  .card-meta { display: flex; justify-content: space-between; font-size: 0.7rem; }
+  .card-year { color: var(--muted); }
+  .card-rating { color: #ffd01d; font-weight: 500; }
+  .genre-tag { display: inline-block; background: rgba(232,201,109,0.1); color: var(--accent); font-size: 0.6rem; padding: 0.12rem 0.45rem; border-radius: 3px; letter-spacing: 0.06em; text-transform: uppercase; margin-top: 0.35rem; }
+
+  .empty { text-align: center; padding: 4rem 1rem; color: var(--muted); }
+  .empty-icon { font-size: 2.5rem; opacity: 0.25; margin-bottom: 0.8rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero">
+  <h1>Your Next <em>Obsession</em> Awaits</h1>
+  <p>{{ movies|length }} film{{ 's' if movies|length != 1 }} in the database</p>
+</div>
+
+<!-- Search -->
+<div class="toolbar">
+  <form class="search-form" method="get" action="/">
+    <input type="text" name="q" value="{{ search }}" placeholder="Search by title…">
+    {% if current_genre != 'All' %}
+    <input type="hidden" name="genre" value="{{ current_genre }}">
+    {% endif %}
+    <button type="submit" class="btn btn-ghost">Search</button>
+    {% if search %}
+    <a href="/?genre={{ current_genre }}" class="btn btn-ghost">✕</a>
+    {% endif %}
+  </form>
+</div>
+
+<!-- Genre chips -->
+<div class="chips" style="margin-bottom:1.5rem">
+  <span class="chip-label">Genre:</span>
+  <a href="/" class="chip {% if current_genre == 'All' %}active{% endif %}">All</a>
+  {% for genre in genres %}
+  <a href="/?genre={{ genre }}{% if search %}&q={{ search }}{% endif %}"
+     class="chip {% if current_genre == genre %}active{% endif %}">{{ genre }}</a>
+  {% endfor %}
+</div>
+
+<div class="section-header">
+  <h2>{{ current_genre if current_genre != 'All' else 'All Movies' }}</h2>
+  <span class="count">{{ movies|length }} result{{ 's' if movies|length != 1 }}</span>
+</div>
+
+{% if movies %}
+<div class="movie-grid">
+  {% for m in movies %}
+  <a href="/movie/{{ m['id'] }}" class="movie-card">
+  <div class="card-poster">
+      {% if m['image_url'] %}
+        <img src="{{ m['image_url'] }}" alt="{{ m['title'] }}" style="width:100%; height:100%; object-fit:cover;">
+      {% else %}
+        <div class="card-poster-icon">🎬</div>
+        <div>{{ m['genre'] }}</div>
+      {% endif %}
+    </div>
+    <div class="card-info">
+      <div class="card-title">{{ m['title'] }}</div>
+      <div class="card-meta">
+        <span class="card-year">{{ m['year'] }}</span>
+        <span class="card-rating">★ {{ m['rating'] }}</span>
+      </div>
+      <div class="genre-tag">{{ m['genre'] }}</div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty">
+  <div class="empty-icon">🎬</div>
+  <p>No movies found.</p>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}{{ movie['title'] }} — CineVault{% endblock %}
+
+{% block extra_css %}
+<style>
+  .back { display: inline-block; color: var(--muted); text-decoration: none; font-size: 0.82rem; margin-bottom: 1.5rem; }
+  .back:hover { color: var(--text); }
+
+  .detail-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; max-width: 700px; }
+  
+  /* Fallback template look if no image is present */
+  .detail-banner { 
+    height: 240px; 
+    background: linear-gradient(135deg, #0d1020, #1a0a0a); 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-size: 5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Direct HTML image element layout scaling rules */
+  .detail-banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  .detail-body { padding: 1.8rem; position: relative; z-index: 2; }
+  .detail-title { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; letter-spacing: 0.04em; margin-bottom: 0.5rem; }
+
+  .meta-row { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-bottom: 1.2rem; }
+  .meta-item { font-size: 0.8rem; color: var(--muted); }
+  .meta-item strong { color: var(--text); }
+  .rating-big { font-size: 1rem; color: #ffd01d; font-weight: 500; }
+  .genre-tag { display: inline-block; background: rgba(232,201,109,0.1); color: var(--accent); font-size: 0.68rem; padding: 0.2rem 0.6rem; border-radius: 3px; letter-spacing: 0.06em; text-transform: uppercase; }
+
+  .detail-desc { font-size: 0.92rem; line-height: 1.75; color: rgba(240,237,230,0.75); margin-bottom: 1.8rem; }
+  .detail-actions { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="/" class="back">← Back to movies</a>
+
+<div class="detail-card">
+  <div class="detail-banner">
+    {% if movie['image_url'] %}
+      <img src="{{ movie['image_url'] }}" alt="{{ movie['title'] or 'Movie Poster' }}">
+    {% else %}
+      🎬
+    {% endif %}
+  </div>
+
+  <div class="detail-body">
+    <div class="detail-title">{{ movie['title'] }}</div>
+
+    <div class="meta-row">
+      <span class="rating-big">★ {{ movie['rating'] }}</span>
+      <span class="genre-tag">{{ movie['genre'] }}</span>
+      <span class="meta-item">{{ movie['year'] }}</span>
+      <span class="meta-item">{{ movie['duration'] }}</span>
+      {% if movie['director'] %}
+      <span class="meta-item">Dir. <strong>{{ movie['director'] }}</strong></span>
+      {% endif %}
+    </div>
+
+    {% if movie['desc'] %}
+    <p class="detail-desc">{{ movie['desc'] }}</p>
+    {% endif %}
+
+    <div class="detail-actions">
+      {% if movie['video_url'] %}
+      <a href="/watch/{{ movie['id'] }}" class="btn btn-accent">▶ Watch Now</a>
+      {% endif %}
+      <a href="/edit/{{ movie['id'] }}" class="btn btn-ghost">✏️ Edit</a>
+      <a href="/confirm-delete/{{ movie['id'] }}" class="btn btn-red">🗑 Delete</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

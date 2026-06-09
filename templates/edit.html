@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Edit {{ movie['title'] }} — CineVault{% endblock %}
+
+{% block content %}
+<a href="/movie/{{ movie['id'] }}" style="display:inline-block;color:var(--muted);text-decoration:none;font-size:0.82rem;margin-bottom:1.5rem">← Back</a>
+
+<div class="form-card">
+  <div class="form-title">Edit Movie</div>
+  <form method="post" action="/edit/{{ movie['id'] }}">
+    <div class="form-group">
+      <label>Title *</label>
+      <input type="text" name="title" value="{{ movie['title'] }}" required>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Year</label>
+        <input type="number" name="year" value="{{ movie['year'] or '' }}" min="1888" max="2099">
+      </div>
+      <div class="form-group">
+        <label>Rating (0–10)</label>
+        <input type="number" name="rating" value="{{ movie['rating'] or '' }}" step="0.1" min="0" max="10">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Duration</label>
+        <input type="text" name="duration" value="{{ movie['duration'] or '' }}">
+      </div>
+      <div class="form-group">
+        <label>Genre</label>
+        <input type="text" name="genre" value="{{ movie['genre'] or '' }}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Director</label>
+      <input type="text" name="director" value="{{ movie['director'] or '' }}">
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea name="desc">{{ movie['desc'] or '' }}</textarea>
+    </div>
+    <div class="form-group">
+      <label>Video URL</label>
+      <input type="url" name="video_url" value="{{ movie['video_url'] or '' }}" placeholder="https://example.com/movie.mp4">
+    </div>
+    <div class="form-group">
+      <label>Image URL</label>
+      <input type="url" name="image_url" value="{{ movie['image_url'] or '' }}" placeholder="https://example.com/poster.jpg">
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-accent">Save Changes</button>
+      <a href="/movie/{{ movie['id'] }}" class="btn btn-ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
