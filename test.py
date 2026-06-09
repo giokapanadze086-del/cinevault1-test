@@ -1,8 +1,21 @@
 import sqlite3
 import re
+import os  # დავამატოთ os მოდული ფაილების შესამოწმებლად
 from flask import Flask, render_template, request, redirect, url_for, g
 
+app = Flask(__name__)
+DB = "movies.db"
 
+# ── ავტომატური ბაზის შექმნა Render-ისთვის ────────────────
+if not os.path.exists(DB):
+    print("Database not found! Creating and seeding...")
+    try:
+        # ვცდილობთ ჩავრთოთ ბაზის შექმნის ფუნქცია
+        import subprocess
+        # გაუშვებს "init_db (1).py" ფაილს ავტომატურად ბექგრაუნდში
+        subprocess.run(["python", "init_db (1).py"])
+    except Exception as e:
+        print(f"Error seeding database: {e}")
 def get_embed_url(url):
     """Convert any video URL to an embeddable URL."""
     if not url:
@@ -31,21 +44,7 @@ def get_embed_url(url):
     return url
 
 
-app = Flask(__name__)
-DB = "movies.db"
 
-# ── ავტომატური ბაზის შექმნა რენდერისთვის ────────────────
-import os
-if not os.path.exists(DB):
-    print("Database not found! Creating and seeding...")
-    # პირდაპირ აქვე გამოვიძახოთ init_db ფუნქცია მეორე ფაილიდან
-    try:
-        from init_db import init_db  # თუ ფაილს დაარქვი init_db.py
-        init_db()
-    except ImportError:
-        # თუ ფაილს ისევ "init_db (1).py" ჰქვია:
-        init_db_module = __import__("init_db (1)")
-        init_db_module.init_db()
 # ────────────────────────────────────────────────────────
 
 
