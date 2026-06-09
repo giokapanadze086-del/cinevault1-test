@@ -34,6 +34,20 @@ def get_embed_url(url):
 app = Flask(__name__)
 DB = "movies.db"
 
+# ── ავტომატური ბაზის შექმნა რენდერისთვის ────────────────
+import os
+if not os.path.exists(DB):
+    print("Database not found! Creating and seeding...")
+    # პირდაპირ აქვე გამოვიძახოთ init_db ფუნქცია მეორე ფაილიდან
+    try:
+        from init_db import init_db  # თუ ფაილს დაარქვი init_db.py
+        init_db()
+    except ImportError:
+        # თუ ფაილს ისევ "init_db (1).py" ჰქვია:
+        init_db_module = __import__("init_db (1)")
+        init_db_module.init_db()
+# ────────────────────────────────────────────────────────
+
 
 def get_db():
     if "db" not in g:
